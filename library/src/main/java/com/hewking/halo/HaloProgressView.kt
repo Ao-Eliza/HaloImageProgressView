@@ -28,7 +28,7 @@ class HaloProgressView(context: Context?, attrs: AttributeSet?) : ImageView(cont
 
     var outRadius = dp2px(50f).toFloat()
     var innRaduus = dp2px(40f).toFloat()
-    var round = outRadius - innRaduus
+    var round = cornerRadius(outRadius, innRaduus)
 
     var progress: Int = 0
         set(value) {
@@ -145,8 +145,8 @@ class HaloProgressView(context: Context?, attrs: AttributeSet?) : ImageView(cont
                 paint.setShader(RadialGradient(0f, 0f, outRadius
                         , intArrayOf(Color.TRANSPARENT, Color.WHITE, Color.WHITE, Color.TRANSPARENT)
                         , floatArrayOf(0.1f, 0.4f, 0.8f, 1f), Shader.TileMode.CLAMP))
-                paint.alpha = (animatorValue * 255).toInt()
-                canvas.drawCircle(0f, 0f, innRaduus + (outRadius - innRaduus) * animatorValue, paint)
+                paint.alpha = haloAlpha(animatorValue)
+                canvas.drawCircle(0f, 0f, haloRadius(innRaduus, outRadius, animatorValue), paint)
                 paint.setXfermode(PorterDuffXfermode(PorterDuff.Mode.DST_OUT))
                 paint.setShader(null)
                 paint.color = Color.WHITE
@@ -154,8 +154,8 @@ class HaloProgressView(context: Context?, attrs: AttributeSet?) : ImageView(cont
                 paint.setXfermode(null)
 
                 // draw progress
-                val text = "${progress}%"
-                canvas.drawText(text, 0 - textPaint.measureText(text).div(2), textPaint.textHeight().div(2) - textPaint.descent(), textPaint)
+                val text = progressLabel(progress)
+                canvas.drawText(text, progressTextOffsetX(textPaint.measureText(text)), progressTextOffsetY(textPaint.textHeight(), textPaint.descent()), textPaint)
 
                 canvas.restoreToCount(sc)
 
@@ -164,10 +164,10 @@ class HaloProgressView(context: Context?, attrs: AttributeSet?) : ImageView(cont
             FINISH -> {
                 val sc = canvas.saveLayer(-width.div(2f), -height.div(2f), width.div(2f), height.div(2f), paint, Canvas.ALL_SAVE_FLAG)
                 canvas.drawPaint(paint)
-                val maxRadius = Math.sqrt(Math.pow(width.toDouble(), 2.0) + Math.pow(height.toDouble(), 2.0)).div(2)
+                val maxRadius = revealMaxRadius(width, height)
                 paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_OUT)
                 paint.color = Color.WHITE
-                canvas.drawCircle(0f, 0f, (outRadius + (maxRadius - outRadius) * finishAnimValue).toFloat(), paint)
+                canvas.drawCircle(0f, 0f, revealRadius(outRadius, maxRadius, finishAnimValue), paint)
                 paint.xfermode = null
                 canvas.restoreToCount(sc)
             }
