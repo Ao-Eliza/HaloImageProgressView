@@ -22,9 +22,9 @@ fun View.getColor(@ColorRes resid: Int): Int {
 }
 
 fun View.dp2px(dp: Float): Int {
-    return (resources.displayMetrics.density * dp + 0.5).toInt()
+    return dpToPx(dp, resources.displayMetrics.density)
 }
 
 fun Paint.textHeight(): Float {
-    return descent() - ascent()
+    return paintTextHeight(descent(), ascent())
 }
